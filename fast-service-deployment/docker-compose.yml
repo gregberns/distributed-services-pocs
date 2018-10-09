@@ -1,0 +1,62 @@
+version: '3'
+
+services:
+  consul:
+    image: consul
+    command: consul agent -server -dev -client=0.0.0.0 -ui -bootstrap -log-level warn
+    ports:
+      - "8400:8400"
+      - "8500:8500"
+      - "8600:53/udp"
+
+  reverse-proxy:
+    image: traefik # The official Traefik docker image
+    command: --api --docker --configfile=/Users/huck/gitlab/concord-revolution/fast-service-deployment/traefik.toml
+    ports:
+      - "80:80"     # The HTTP port
+      - "8080:8080" # The Web UI (enabled by --api)
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+      # https://www.howtoforge.com/tutorial/ubuntu-docker-traefik-proxy/
+      - ./traefik.toml:/traefik.toml
+    depends_on:
+      - consul
+    links:
+      - consul
+
+
+  whoami:
+    image: emilevauge/whoami # A container that exposes an API to show its IP address
+    labels:
+      - "traefik.frontend.rule=Host:whoami.docker.localhost"
+
+  registrator:
+    depends_on:
+      - consul
+    image: gliderlabs/registrator:master
+    command: -internal consul://consul:8500
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+    links:
+      - consul
+
+  
+
+
+  alpha-service:
+    image: gregberns/alpha-service
+    ports:
+      - "8000:8000"
+    environment:
+      # https://m.mattmclaugh.com/traefik-and-consul-catalog-example-2c33fc1480c0
+      - SERVICE_TAGS=traefik.enable=true,traefik.frontend.entryPoints=http
+
+    # labels:
+    #   - "traefik.frontend.rule=Host:alpha.localhost"
+    #   - "traefik.backend=backend1"
+
+      #   - "traefik.frontend.rule=Host:alpha-service.docker.localhost"
+        # - "traefik.frontend.rule=Host:alpha.localhost"
+        
+        # - "traefik.enable=true"
+        # - "traefik.port=3000"

@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  web:
+    image: gregberns/node-web-app
+    ports:
+    - "49160:8080"
+  kafka:
+    image: spotify/kafka
+    ports:
+    - "9092:9092"
+    - "2181:2181"

@@ -1,0 +1,56 @@
+#[docker]
+# https://docs.traefik.io/configuration/backends/docker/
+#endpoint = "unix:///var/run/docker.sock"
+#domain = "docker.localhost"
+
+
+logLevel = "DEBUG"
+[traefikLog]
+  filePath = "./traefik.log"
+  format   = "json"
+
+defaultEntryPoints = ["http"]
+
+
+[consulCatalog]
+endpoint = "127.0.0.1:8500"
+domain = "consul.localhost"
+exposedByDefault = false
+prefix = "traefik"
+
+
+# THIS IS CRITICAL
+[file]
+
+[ping]
+[healthcheck]
+
+watch = true
+
+# What port is exposed?
+[entryPoints]
+  [entryPoints.http]
+  address = ":6800"
+
+# What incoming requests do we allow?
+[frontends]
+  [frontends.frontend1]
+  backend = "backend1"
+  passHostHeader = true
+    [frontends.frontend1.routes.test_1]
+    rule = "Host:alpha.localhost"
+    #rule = "Path:/ping"
+
+[backends]
+  [backends.backend1]
+    [backends.backend1.servers.server1]
+    url = "http://localhost:3000"
+    weight = 1
+    #[backends.backend1.servers.server2]
+    #url = "http://localhost:3001"
+    #weight = 1
+
+    #[backends.backend1.servers.server2]
+    #url = "Host:alpha-service.localhost"
+    #url = "http://localhost:3001"
+    #weight = 1
