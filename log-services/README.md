@@ -14,7 +14,7 @@
 [Setting up a ELK stack in Docker](https://logz.io/blog/docker-logging/)
 
 
-
+## Standup SQL Server Instance For Testing
 
 [Run SQL Server container images with Docker](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-2017)
 
@@ -45,6 +45,19 @@ Either use the [docker container](https://hub.docker.com/r/microsoft/mssql-tools
 ```
 docker pull mcr.microsoft.com/mssql-tools
 docker run -it mcr.microsoft.com/mssql-tools
+```
+
+Or Ubuntu
+
+(Install sqlcmd on Ubuntu)[https://docs.microsoft.com/en-us/sql/linux/sql-server-linux-setup-tools?view=sql-server-2017#ubuntu]
+
+```
+curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+curl https://packages.microsoft.com/config/ubuntu/16.04/prod.list | sudo tee /etc/apt/sources.list.d/msprod.list
+sudo apt-get update 
+sudo apt-get install mssql-tools unixodbc-dev
+
+echo 'export PATH="$PATH:/opt/mssql-tools/bin"' >> ~/.bash_profile
 ```
 
 Or on Mac
@@ -104,6 +117,14 @@ Validata Java is installed (if not, figure out how to get it installed)
 
 ```
 java -version
+```
+
+If not, install Java.
+
+Linux:
+
+```
+apt-get install default-jdk
 ```
 
 
