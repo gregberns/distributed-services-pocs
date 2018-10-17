@@ -99,6 +99,11 @@ goDoSomethingWithLists (append x 4) (append x 5)
 
 ```
 
+Questions to answers:
+* What are the parameter value when passed in?
+* What if the language is a pass by value? What if its pass by reference?
+* Does the languages order of evaluation matter?
+
 ## What if the list is changed somewhere else
 
 ```
