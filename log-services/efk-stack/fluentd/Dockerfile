@@ -1,4 +1,7 @@
 FROM fluent/fluentd:v1.2.6
+
+COPY ./conf/fluent.conf /fluentd/etc/
+
 RUN apk add --update --virtual .build-deps \
     sudo build-base ruby-dev \
     && sudo gem install \

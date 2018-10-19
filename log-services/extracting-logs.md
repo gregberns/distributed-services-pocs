@@ -72,6 +72,32 @@ RUN ["gem", "install", "fluent-plugin-elasticsearch", "--no-rdoc", "--no-ri", "-
 ```
 
 
+## FlientD Connection
+
+#### Run Elasticsearch
+
+docker run -p 9200:9200 a13
+
+
+#### Build and run Fluentd
+docker build -t fluentd1 .
+
+//Runs correctly, but config is still incorrect
+//need to replace 561 with the image id
+docker run -p 24224:24224 -p 24224:24224/udp -v /data/fluentd:/fluentd/log -v /home/sandbox/gberns/efk-stack/fluentd/conf:/fluentd/etc -e FLUENTD_CONF=fluent.conf fluentd1
+
+
+
+
+//works
+docker build -t worker1 .
+
+docker run --log-driver=fluentd --log-opt fluentd-address=fluentdhost:24224 worker1
+
+
+
+
+
 
 
 
