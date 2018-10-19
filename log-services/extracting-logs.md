@@ -100,3 +100,7 @@ docker run -d worker
 
 
 
+
+
+//display elasticsearch indexes
+curl localhost:9200/_cat/indices?v

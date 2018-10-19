@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   worker:
     build: ./worker
@@ -10,45 +10,26 @@ services:
       driver: "fluentd"
       options:
         fluentd-address: localhost:24224
-    networks:
-      - efk
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    environment:
+      discovery.type: single-node
+    ports:
+      - 9200:9200
+      - 9300:9300
 
   fluentd:
-    #image: fluent/fluentd:stable
     build: ./fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc
+      - ./logs:/logs
     ports:
-      - "24224:24224"
-      - "24224:24224/udp"
-    networks:
-      - efk
+      - 24224:24224
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.4.1
-    ports:
-      - "9200:9200"
-      - "9300:9300"
+  kibana:
+    image: docker.elastic.co/kibana/kibana:6.2.4
     environment:
-      ES_JAVA_OPTS: "-Xmx256m -Xms256m"      
-    networks:
-      - efk  
-    depends_on:
-      - fluentd 
-
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:6.4.1
-  #        # docker.elastic.co/kibana/kibana-oss:6.2.2
-  #   depends_on:
-  #     - elasticsearch
-  #   ports:
-  #     - "5601:5601"
-  #   networks:
-  #     - efk
-
-  # docker run --network=efk --name elasticsearch -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" -e "cluster.name=docker-cluster" -e "bootstrap.memory_lock=true" -e "ES_JAVA_OPTS=-Xms512m -Xmx512m" --ulimit memlock=-1:-1 -v elasticdata:/usr/share/elasticsearch/data docker.elastic.co/elasticsearch/elasticsearch-oss:6.2.2
-# docker run --network=efk -d -p 5601:5601 docker.elastic.co/kibana/kibana-oss:6.4.1
-
-networks:
-  efk:
-    driver: bridge
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    ports:
+      - 5601:5601
