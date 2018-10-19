@@ -1,6 +1,62 @@
 # Log Services
 
 
+
+
+
+https://docs.docker.com/config/containers/logging/configure/
+
+> Docker includes multiple logging mechanisms to help you get information from running containers and services. These mechanisms are called logging drivers.
+
+
+https://docs.docker.com/config/containers/logging/
+
+
+> In some cases, docker logs may not show useful information unless you take additional steps.
+> If you use a logging driver which sends logs to a file, an external host, a database, or another logging back-end, docker logs may not show useful information.
+> If your image runs a non-interactive process such as a web server or a database, that application may send its output to log files instead of STDOUT and STDERR.
+> In the first case, your logs are processed in other ways and you may choose not to use docker logs. In the second case, the official nginx image shows one workaround, and the official Apache httpd image shows another.
+> The official nginx image creates a symbolic link from /var/log/nginx/access.log to /dev/stdout, and creates another symbolic link from /var/log/nginx/error.log to /dev/stderr, overwriting the log files and causing logs to be sent to the relevant special device instead. See the Dockerfile.
+> The official httpd driver changes the httpd application’s configuration to write its normal output directly to /proc/self/fd/1 (which is STDOUT) and its errors to /proc/self/fd/2 (which is STDERR). See the Dockerfile.
+
+
+
+## Deliver Mode of Log Messages
+
+https://docs.docker.com/config/containers/logging/configure/#configure-the-delivery-mode-of-log-messages-from-container-to-log-driver
+
+Configure the delivery mode of log messages from container to log driver Docker provides two modes for delivering messages from the container to the log driver:
+
+* (default) direct, blocking delivery from container to driver
+non-blocking delivery that stores log messages in an intermediate per-container ring buffer for consumption by driver
+* The non-blocking message delivery mode prevents applications from blocking due to logging back pressure. Applications are likely to fail in unexpected ways when STDERR or STDOUT streams block.
+
+WARNING: When the buffer is full and a new message is enqueued, the oldest message in memory is dropped. Dropping messages is often preferred to blocking the log-writing process of an application.
+
+The mode log option controls whether to use the blocking (default) or non-blocking message delivery.
+
+The max-buffer-size log option controls the size of the ring buffer used for intermediate message storage when mode is set to non-blocking. max-buffer-size defaults to 1 megabyte.
+
+The following example starts an Alpine container with log output in non-blocking mode and a 4 megabyte buffer:
+
+$ docker run -it --log-opt mode=non-blocking --log-opt max-buffer-size=4m alpine ping 127.0.0.1
+
+#### Logging Best Practces
+https://success.docker.com/article/logging-best-practices
+
+Application Logs
+Application-produced logs can be a combination of custom application logs and the STDOUT/STDERR logs of the main process of the application. As described earlier, the STDOUT/STDERR logs of all containers are captured by the Docker Engine default logging driver. So, no need to do any custom configuration to capture them. If the application has custom logging ( e.g. writes logs to /var/log/myapp.log within the container), it's important to take that into consideration.
+
+
+
+#### Fluentd Logging Driver
+
+https://docs.docker.com/config/containers/logging/fluentd/
+
+
+
+
+
 **Objectives**
 * Need to do the SQL stmts
 * Research workign with STDOUT/STDERR
