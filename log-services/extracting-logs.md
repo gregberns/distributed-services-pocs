@@ -113,7 +113,9 @@ docker run --network=efk -d -p 9200:9200 -p 9300:9300 -e "discovery.type=single-
 
 
 
-docker run --network=efk --name kibana -d -p 5601:5601 docker.elastic.co/kibana/kibana-oss:6.2.2
+docker run --name kibana -d -p 5601:5601 docker.elastic.co/kibana/kibana-oss:6.2.2
+docker run --name kibana -d -p 5601:5601 docker.elastic.co/kibana/kibana-oss:6.2.2
+docker run -d -p 5601:5601 -e ELASTICSEARCH_UR L=http://localhost:9200 docker.elastic.co/kibana/kibana-oss:6.2.2
 
 
 docker run -d --network efk --name fluentd -p 42185:42185/udp <Image ID>

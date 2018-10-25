@@ -1,4 +1,4 @@
-FROM fluent/fluentd:v1.2.6
+FROM fluent/fluentd:stable
 
 COPY ./conf/fluent.conf /fluentd/etc/
 
