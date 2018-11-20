@@ -3,6 +3,106 @@
 
 
 
+## Current POC Architecture
+
+The POC consists of three parts:
+
+* A Node app writing directly to ElasticSearch over HTTP
+* A LogStash instance reading entries from SQL Server on an interval, and pushing new rows to Elastic Seaaarch
+* An App running in Docker, writing to STDOUT. The Fluentd Docker Log Driver reads the STDOUT and pushes logs to ElasticSearch.
+
+![Logging Solution Architecture](./LoggingSolutionArchitecture.png "Logging Solution Architecture")
+
+
+
+## Starting Services
+
+#### Copy Files
+
+```
+scp -r -i c:/secrets/cscadmin.key efk-stack/  cscadmin@dev-dock-006:~/
+```
+
+#### Standup Portainer Instance
+
+```
+docker volume create portainer_data
+docker run -d -p 9000:9000 --name portainer --restart always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer
+```
+
+#### Initialize Swarm
+
+To use secrets you need to be in docker swarm mode. To do this run `docker swarm init`.
+
+```
+docker swarm init
+```
+
+### Configuring Secrets
+
+Secrets need to be configured before running `docker-compose`
+
+```bash
+$ echo <secret> | docker secret create CSC_App_ConcordLog_Dev_Password -
+```
+
+head -n 1 secret_test.txt | docker secret create CSC_App_ConcordLog_Dev_Password -
+
+#### Create/run local docker registry
+
+```
+docker run -d -p 5000:5000 --restart=always --name registry registry:2
+```
+
+#### Build and Push Images to Local Registry
+
+This gets us around the issues described below.
+
+```
+docker-compose build
+docker-compose push  #pushes an image to a registry, uses the 'image' proerty in the service's config
+```
+
+
+`docker-compose up` cannot be used when secrets are involved (see [Docker Issue](https://github.com/docker/compose/issues/6169)). If you do use them, you'll see a message like:
+
+```
+WARNING: Service "sql-concord-logger" uses secret "CSC_App_ConcordLog_Dev_Password"ernal. External secrets are not available to containers created by docker-compose.
+```
+
+
+#### Deploy the Stack
+
+```
+docker stack deploy -c docker-compose.yml efk-stack
+```
+
+#### Finished
+
+#### Debugging
+
+Use this if a task is failing
+```
+docker service ps <ID_of_Service> -q | head -n 1 | xargs docker inspect
+# OR
+docker service ps <ID_of_Service> -q | head -n 1 | xargs docker service logs -f
+```
+The result is an inspect object and in it often has a cause of the failure
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 https://docs.docker.com/config/containers/logging/configure/
 

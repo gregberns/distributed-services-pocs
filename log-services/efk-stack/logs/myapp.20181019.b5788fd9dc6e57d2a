@@ -1,2 +1,0 @@
-2018-10-19T07:28:34+00:00	fluent.info	{"message":"shutting down fluentd"}
-2018-10-19T07:28:34+00:00	fluent.info	{"type":"forward","plugin_id":"object:3ff4dfdb4afc","message":"shutting down input type=\"forward\" plugin_id=\"object:3ff4dfdb4afc\""}

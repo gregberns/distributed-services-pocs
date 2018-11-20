@@ -1,7 +1,8 @@
-version: '3'
+version: '3.3'
 services:
   worker:
     build: ./worker
+    image: localhost:5000/efk-stack_worker
     ports:
       - "8080:80"
     depends_on:
@@ -9,12 +10,27 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: fluentd:24224
 
   sql-concord-logger:
     build: ./sql-logstash
+    image: localhost:5000/efk-stack_sql-concord-logger
+    volumes: 
+      - ./sql-logstash/config:/usr/share/logstash/config
+      - ./sql-logstash/pipeline:/usr/share/logstash/pipeline
     depends_on:
       - "elasticsearch"
+    environment:
+      MSSQL_SERVER: PhoenixDev
+      MSSQL_DATABASE: ConcordLog
+      MSSQL_USER: CSC\App_ConcordLog_Dev
+      MSSQL_PASSWORD_FILE: /run/secrets/CSC_App_ConcordLog_Dev_Password
+    secrets:
+      - CSC_App_ConcordLog_Dev_Password
+    # logging:
+    #   driver: "fluentd"
+    #   options:
+    #     fluentd-address: localhost:24224
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
@@ -28,6 +44,7 @@ services:
 
   fluentd:
     build: ./fluentd
+    image: localhost:5000/efk-stack_fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc
       - ./logs:/logs
@@ -40,3 +57,7 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
     ports:
       - 5601:5601
+
+secrets:
+   CSC_App_ConcordLog_Dev_Password:
+     file: secret_test.txt
