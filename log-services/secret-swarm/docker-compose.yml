@@ -1,0 +1,79 @@
+version: '3.3'
+services:
+  fluentd:
+    build: ./fluentd
+    image: localhost:5000/secret-swarm_fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc
+      - ./logs:/logs # This is going to bite us, need to change this
+    ports:
+      - 24224:24224
+
+  sql-concord-logger:
+    build: ./sql-logstash
+    image: localhost:5000/secret-swarm_sql-concord-logger
+    volumes: 
+      - ./sql-logstash/config:/usr/share/logstash/config
+      - ./sql-logstash/pipeline:/usr/share/logstash/pipeline
+    # depends_on:
+    #   - "elasticsearch"
+    environment:
+      MSSQL_SERVER: sqlserver
+      MSSQL_DATABASE: master
+      MSSQL_USER: sa
+      MSSQL_PASSWORD_FILE: /run/secrets/Sql_Server_Test_Password
+    secrets:
+      - Sql_Server_Test_Password
+    # logging:
+    #   driver: "fluentd"
+    #   options:
+    #     fluentd-address: localhost:24224
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server
+    ports:
+      - 1433:1433
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: Happy_password! #/run/secrets/Sql_Server_Test_Password #<your_strong_password>
+      MSSQL_PID: Developer #<your_product_id | edition_name> (default: Developer)
+    secrets:
+      - Sql_Server_Test_Password
+
+  # worker:
+  #   build: ./worker
+  #   image: localhost:5000/efk-stack_worker
+  #   ports:
+  #     - "8080:80"
+  #   depends_on:
+  #     - "fluentd"
+  #   logging:
+  #     driver: "fluentd"
+  #     options:
+  #       fluentd-address: fluentd:24224
+
+  
+
+  # elasticsearch:
+  #   image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+  #   environment:
+  #     discovery.type: single-node
+  #   ports:
+  #     - 9200:9200
+  #     - 9300:9300
+  #   depends_on:
+  #     - "fluentd"
+
+
+
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:6.2.4
+  #   environment:
+  #     ELASTICSEARCH_URL: http://elasticsearch:9200
+  #   ports:
+  #     - 5601:5601
+
+secrets:
+  Sql_Server_Test_Password:
+    file: secret_test.txt
+  

@@ -1,8 +1,5 @@
 # Log Services
 
-
-
-
 ## Current POC Architecture
 
 The POC consists of three parts:
@@ -12,8 +9,6 @@ The POC consists of three parts:
 * An App running in Docker, writing to STDOUT. The Fluentd Docker Log Driver reads the STDOUT and pushes logs to ElasticSearch.
 
 ![Logging Solution Architecture](./LoggingSolutionArchitecture.png "Logging Solution Architecture")
-
-
 
 ## Starting Services
 
@@ -44,9 +39,10 @@ Secrets need to be configured before running `docker-compose`
 
 ```bash
 $ echo <secret> | docker secret create CSC_App_ConcordLog_Dev_Password -
-```
 
-head -n 1 secret_test.txt | docker secret create CSC_App_ConcordLog_Dev_Password -
+# Or if it exists in a file
+head -n 1 secret_test.txt | docker secret create Sql_Server_Test_Password -
+```
 
 #### Create/run local docker registry
 
